@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JWT Login Demo (Redirect Method)</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 500px; margin: auto; }
+        #me-box, #login-box { border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+        #me-box { display: none; }
+        .google-btn {
+            background: #4285F4;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import {
+            getAuth,
+            GoogleAuthProvider,
+            signInWithRedirect,
+            getRedirectResult
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "",
+          authDomain: "",
+          projectId: "",
+          storageBucket: "",
+          messagingSenderId: "",
+          appId: ""
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.auth = auth;
+        window.provider = provider;
+        window.signInWithRedirect = signInWithRedirect;
+
+        async function handleRedirectResult() {
+            try {
+                const result = await getRedirectResult(auth);
+
+                if (result && result.user) {
+                    const user = result.user;
+                    const idToken = await user.getIdToken();
+
+                    const resp = await fetch("/firebase/firebase-login/", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ idToken })
+                    });
+
+                    if (!resp.ok) {
+                        alert("Google login failed on backend");
+                        return;
+                    }
+
+                    const data = await resp.json();
+                    saveTokens(data);
+
+                    loadMe();
+                }
+
+            } catch (err) {
+                console.error("Google Login Redirect Result Error:", err);
+                alert("Google login failed on return: " + (err?.code || "Unknown error"));
+            }
+        }
+
+        window.handleRedirectResult = handleRedirectResult;
+    </script>
+</head>
+<body onload="handleRedirectResult().then(() => loadMe())">
+
+<h1>Django REST Login (Redirect)</h1>
+
+<div id="login-box">
+    <h2>Login</h2>
+    <input id="email" type="email" placeholder="Email" style="width:100%;padding:8px;"><br><br>
+    <input id="password" type="password" placeholder="Password" style="width:100%;padding:8px;"><br><br>
+    <button onclick="login()" style="padding:10px 20px; width:100%;">Login</button>
+
+    <button class="google-btn" onclick="googleLogin()">
+        Login with Google (Redirect)
+    </button>
+
+    <p id="login-error" style="color:red;"></p>
+</div>
+
+<div id="me-box">
+    <h2>Welcome!</h2>
+    <pre id="me-data"></pre>
+    <button onclick="logout()" style="padding:10px 20px; width:100%;">Logout</button>
+</div>
+
+<script>
+const API_LOGIN = "/api/auth/login/";
+const API_ME = "/api/auth/me/";
+const API_LOGOUT = "/api/auth/logout/";
+const API_FIREBASE_LOGIN = "/firebase/firebase-login/";
+
+function getToken() {
+    return localStorage.getItem("access");
+}
+
+function saveTokens(data) {
+    localStorage.setItem("access", data.access);
+    localStorage.setItem("refresh", data.refresh);
+}
+
+async function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const resp = await fetch(API_LOGIN, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email, password })
+    });
+
+    if (!resp.ok) {
+        document.getElementById("login-error").textContent = "Invalid email or password";
+        return;
+    }
+
+    const data = await resp.json();
+    saveTokens(data);
+    loadMe();
+}
+
+async function googleLogin() {
+    try {
+        await window.signInWithRedirect(window.auth, window.provider);
+    } catch (err) {
+        console.error("Google Login Redirect Error:", err);
+        alert("Could not start Google login redirect.");
+    }
+}
+
+async function loadMe() {
+    const token = getToken();
+    if (!token) return;
+
+    const resp = await fetch(API_ME, {
+        headers: { Authorization: "Bearer " + token }
+    });
+
+    if (resp.ok) {
+        const data = await resp.json();
+        document.getElementById("login-box").style.display = "none";
+        document.getElementById("me-box").style.display = "block";
+        document.getElementById("me-data").textContent = JSON.stringify(data, null, 2);
+    } else {
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+        location.reload();
+    }
+}
+
+async function logout() {
+    const token = getToken();
+
+    await fetch(API_LOGOUT, {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token }
+    });
+
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    location.reload();
+}
+</script>
+
+</body>
+</html>
