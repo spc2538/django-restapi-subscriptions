@@ -112,7 +112,7 @@ AUTH_USER_MODEL = 'vinculante.Account'
 CACHES = {
     'default': {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": env('REDIS_DATABASE_URL') + "/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -169,8 +169,8 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 FRONTEND_URL = "http://localhost"
 
 # Celery
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = env('REDIS_DATABASE_URL') + '/0'
+CELERY_RESULT_BACKEND = env('REDIS_DATABASE_URL') +'/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
