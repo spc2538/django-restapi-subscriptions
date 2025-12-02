@@ -119,3 +119,10 @@ python manage.py shell
 ```
 
 
+
+## Super usuario
+
+```bash
+# admin@scp2538.com
+python manage.py createsuperuser
+```

@@ -36,11 +36,11 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
     'rest_framework_simplejwt.token_blacklist',
     'drf_yasg',
-    'vinculante',
+    'accounts',
     'subscriptions',
     'billing',
     'django_celery_beat',
-    'vinculante_firebase',
+    'accounts_firebase',
 ]
 
 MIDDLEWARE = [
@@ -107,7 +107,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SITE_ID = 1
-AUTH_USER_MODEL = 'vinculante.Account'
+AUTH_USER_MODEL = 'accounts.Account'
 
 CACHES = {
     'default': {
@@ -123,7 +123,7 @@ SESSION_CACHE_ALIAS = "default"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'vinculante.authentication.RedisJWTAuthentication',
+        'accounts.authentication.RedisJWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',

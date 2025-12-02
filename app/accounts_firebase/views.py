@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from vinculante.redis_service import whitelist_access_token, whitelist_refresh_token
+from accounts.redis_service import whitelist_access_token, whitelist_refresh_token
 from django.conf import settings
 from rest_framework.response import Response
 from firebase_admin import auth as firebase_auth

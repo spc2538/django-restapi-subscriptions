@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class VinculanteConfig(AppConfig):
+class AccountsFirebaseConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'vinculante'
+    name = 'accounts_firebase'
