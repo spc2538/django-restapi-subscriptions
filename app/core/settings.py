@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'billing',
     'django_celery_beat',
     'accounts_firebase',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -51,7 +52,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware'
+    'allauth.account.middleware.AccountMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -186,3 +189,5 @@ FRONTEND_CANCEL_URL = 'http://localhost'
 FIREBASE_CERT_PATH = BASE_DIR / "firebase_key.json"
 cred = credentials.Certificate(FIREBASE_CERT_PATH)
 firebase_admin.initialize_app(cred)
+
+CORS_ALLOW_ALL_ORIGINS = True
